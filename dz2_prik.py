@@ -12,7 +12,18 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+DARK_GREEN = (0, 90, 0)
 BLUE = (0, 0, 255)
+DARK_BLUE = (0, 0, 90)
+DARK_RED = (90, 0, 0)
+DARK_YELLOW= (180, 120, 0)
+DARK_GREY=(50,50,50)
+SaddleBrown = (139, 69, 19)
+PURPLE = (90, 0, 90)
+VINOUS = (171, 39, 49)
+PINK = (255, 0, 153)
+CYAN = (0, 255, 255)
+YELLOW = (255, 255, 0)
 
 HEIGHT_LINK = 250
 WIDTH_LINK = 15
@@ -49,24 +60,24 @@ class CinematicPair:
         self.width = width
         self.color = color
 
-    def draw_on_screen(self, screen, *, key=None, low_index:str=None, upp_index:str=None):
+    def draw_on_screen(self, screen, *, key=None, low_index:str=None, upp_index:str=None, size_name_text=SIZE_TEXT-16, coords_shift_name_text:tuple=(0,0)):
         global font
         temp_x: int = self.x
         temp_y: int = self.y
         if key is not None:
             temp_x, temp_y = key((temp_x, temp_y))
         if low_index is not None or upp_index is not None:
-            font = pygame.font.Font(None, SIZE_TEXT-16)
-        coords_name_kp: tuple = (temp_x - self.radius * (2 / 3 if low_index is None and upp_index is None else 5/6), temp_y - self.radius * (2 / 3 if low_index is None and upp_index is None else 1/2))
+            font = pygame.font.Font(None, size_name_text)
+        coords_name_kp: tuple = (temp_x - self.radius * (2 / 3 if low_index is None and upp_index is None else 5/6) + coords_shift_name_text[0], temp_y - self.radius * (2 / 3 if low_index is None and upp_index is None else 1/2) + coords_shift_name_text[1])
         pygame.draw.circle(screen, self.color, (temp_x, temp_y), self.radius + self.width)
         pygame.draw.circle(screen, WHITE, (temp_x, temp_y), self.radius)
         screen.blit(font.render(self.name, True, self.color), coords_name_kp)
         if low_index is not None or upp_index is not None:
-            font = pygame.font.Font(None, SIZE_TEXT-26)
+            font = pygame.font.Font(None, size_name_text-10)
             if upp_index is not None:
-                screen.blit(font.render(upp_index, True, self.color), (coords_name_kp[0]+15, coords_name_kp[1]-3))
+                screen.blit(font.render(upp_index, True, self.color), (coords_name_kp[0]+15+(size_name_text/10)*(size_name_text!=SIZE_TEXT-16), coords_name_kp[1]-3-(size_name_text/10)*(size_name_text!=SIZE_TEXT-16)))
             if low_index is not None:
-                screen.blit(font.render(low_index, True, self.color), (coords_name_kp[0] + 15, coords_name_kp[1] + 10))
+                screen.blit(font.render(low_index, True, self.color), (coords_name_kp[0] + 15+(size_name_text/10)*(size_name_text!=SIZE_TEXT-16), coords_name_kp[1] + 10+(size_name_text/10)*(size_name_text!=SIZE_TEXT-16)))
             font = pygame.font.Font(None, SIZE_TEXT)
 
     def get_centre(self):
@@ -211,12 +222,12 @@ class Arrow:
 
 
 kinematic_pairs: dict = {
-    "A": CinematicPair(WIDTH / 2, HEIGHT / 2 - HEIGHT_LINK, "A"),
-    "B": CinematicPair(WIDTH / 2, HEIGHT / 2 - HEIGHT_LINK / 2, "B"),
-    "C": CinematicPair(WIDTH / 2 + HEIGHT_LINK / 2, HEIGHT / 2 + HEIGHT_LINK, "C"),
-    "D": CinematicPair(WIDTH / 2, HEIGHT / 2 + HEIGHT_LINK, "D"),
-    "E": CinematicPair(WIDTH / 2, HEIGHT / 2, "E"),
-    "F": CinematicPair(WIDTH / 2, HEIGHT / 2, "F")
+    "A": CinematicPair(WIDTH / 2, HEIGHT / 2 - HEIGHT_LINK, "A", color=DARK_GREEN),
+    "B": CinematicPair(WIDTH / 2, HEIGHT / 2 - HEIGHT_LINK / 2, "B", color=DARK_GREEN),
+    "C": CinematicPair(WIDTH / 2 + HEIGHT_LINK / 2, HEIGHT / 2 + HEIGHT_LINK, "C", color=DARK_GREEN),
+    "D": CinematicPair(WIDTH / 2, HEIGHT / 2 + HEIGHT_LINK, "D", color=DARK_GREEN),
+    "E": CinematicPair(WIDTH / 2, HEIGHT / 2, "E", color=DARK_GREEN),
+    "F": CinematicPair(WIDTH / 2, HEIGHT / 2, "F", color=DARK_GREEN)
 }
 rotate={
     "A": gen_rotate_func(kinematic_pairs["A"].get_centre()),
@@ -226,15 +237,15 @@ rotate={
     "C_r": gen_rotate_func(kinematic_pairs["C"].get_centre(), flag_reverse=True)
 }
 links: dict = {
-    "1": Flap(WIDTH / 2, HEIGHT / 2 - HEIGHT_LINK / 2, "1"),
-    "3_1": Flap(WIDTH / 2, HEIGHT / 2 + HEIGHT_LINK / 2, "3"),
+    "1": Flap(WIDTH / 2, HEIGHT / 2 - HEIGHT_LINK / 2, "1", color=DARK_BLUE),
+    "3_1": Flap(WIDTH / 2, HEIGHT / 2 + HEIGHT_LINK / 2, "3", color=PURPLE),
     "3_2": ComplexLink(
         [rotate["D_r"]((WIDTH / 2, HEIGHT / 2 + HEIGHT_LINK / 2 - WIDTH_LINK / 2), angle=-angle) for angle in
          np.arange(0, math.pi / 2 + math.pi / 99, math.pi / 100, dtype=float)] +
         [rotate["D_r"]((WIDTH / 2 + HEIGHT_LINK / 2 - WIDTH_LINK / 2, HEIGHT / 2 + HEIGHT_LINK), angle=angle) for
          angle in np.arange(0, math.pi / 2 + math.pi / 99, math.pi / 100, dtype=float)],
-        "3"),
-    "2": ComplexLink([],"2")
+        "3", color=PURPLE),
+    "2": ComplexLink([],"2", color=DARK_YELLOW)
 }
 
 if __name__ == "__main__":
@@ -255,19 +266,20 @@ if __name__ == "__main__":
         links["3_2"].draw_on_screen(screen, key=rotate["D_r"])
         links["2"].dynamic_draw_on_screen(screen, rotate["A"](kinematic_pairs["B"].get_centre()), rotate["D_r"](kinematic_pairs["C"].get_centre()), shift_name_x=30)
 
-        Emphasis().draw_on_screen(screen, *kinematic_pairs["D"].get_centre(), rotate["D_r"])
-        Emphasis().draw_on_screen(screen, *kinematic_pairs["A"].get_centre(), rotate["A_r"])
+        Emphasis(color=DARK_RED).draw_on_screen(screen, *kinematic_pairs["D"].get_centre(), rotate["D_r"])
+        Emphasis(color=DARK_RED).draw_on_screen(screen, *kinematic_pairs["A"].get_centre(), rotate["A_r"])
 
-        kinematic_pairs["A"].draw_on_screen(screen, upp_index="01", low_index="1В")
-        kinematic_pairs["B"].draw_on_screen(screen, key=rotate["A"], upp_index="12", low_index="1В")
-        kinematic_pairs["C"].draw_on_screen(screen, key=rotate["D_r"], upp_index="23", low_index="1В")
-        kinematic_pairs["D"].draw_on_screen(screen, upp_index="30", low_index="1В")
-        kinematic_pairs["E"].draw_on_screen(screen, key=rotate["A"])
-        kinematic_pairs["F"].draw_on_screen(screen, key=rotate["D_r"])
+        Arrow(*kinematic_pairs["A"].get_centre(), HEIGHT_LINK / 4, math.pi * 5 / 12, WIDTH_LINK / 4, color =DARK_GREY).draw_on_screen(
+            screen, func_rotate=rotate["A"], angle_rotate=-math.pi * 2 / 5)
+        Arrow(*kinematic_pairs["D"].get_centre(), HEIGHT_LINK / 4, math.pi * 5 / 12, WIDTH_LINK / 4, color=DARK_GREY).draw_on_screen(
+            screen)
 
-
-        Arrow(*kinematic_pairs["A"].get_centre(), HEIGHT_LINK/4,math.pi*5/12,WIDTH_LINK/4).draw_on_screen(screen, func_rotate=rotate["A"], angle_rotate=-math.pi*2/5)
-        Arrow(*kinematic_pairs["D"].get_centre(), HEIGHT_LINK / 4, math.pi * 5 / 12, WIDTH_LINK / 4).draw_on_screen(screen)
+        kinematic_pairs["A"].draw_on_screen(screen, upp_index="01", low_index="1В", size_name_text=42,coords_shift_name_text=(0, -45))
+        kinematic_pairs["B"].draw_on_screen(screen, key=rotate["A"], upp_index="12", low_index="1В", size_name_text=42,coords_shift_name_text=(40, 0))
+        kinematic_pairs["C"].draw_on_screen(screen, key=rotate["D_r"], upp_index="23", low_index="1В", size_name_text=42,coords_shift_name_text=(40, 0))
+        kinematic_pairs["D"].draw_on_screen(screen, upp_index="30", low_index="1В", size_name_text=42,coords_shift_name_text=(0, 45))
+        kinematic_pairs["E"].draw_on_screen(screen, key=rotate["A"], size_name_text=42, coords_shift_name_text=(-33, -15))
+        kinematic_pairs["F"].draw_on_screen(screen, key=rotate["D_r"], size_name_text=42, coords_shift_name_text=(-33, 15))
 
         pygame.display.flip()
         VAR_ANGLE+=STEP_ANGLE
